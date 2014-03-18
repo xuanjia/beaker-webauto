@@ -14,6 +14,11 @@ from selenium.webdriver.support import expected_conditions as EC
 class BeakerJobsTest(unittest.TestCase):
     def setUp(self):
         profile = webdriver.FirefoxProfile(config.user_noadmin)
+        profile.set_preference("browser.download.folderList",2)
+        profile.set_preference("browser.download.manager.showWhenStarting",False)
+        profile.set_preference("browser.download.dir", os.getcwd()+"/download")
+        #set auto download xml file
+        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
         self.driver = webdriver.Firefox(profile)
         driver = self.driver
         driver.get(config.hub_url)
@@ -24,7 +29,17 @@ class BeakerJobsTest(unittest.TestCase):
         p=re.compile(r':')
         job_id=p.split(job_string)[1]
         return job_id
-    
+
+    @staticmethod
+    def check_string_in_file(file,string):
+        r=open(file)
+        found = False
+        for line in r:
+            if string in line:
+                found = True
+                break
+        return found
+
     def get_jobid_from_list(self, anchor):
         xpath="//tbody/tr[%s]/td[1]/a[contains(@href,'./')]" % anchor
         job_string=self.driver.find_element_by_xpath(xpath).text
@@ -152,16 +167,18 @@ class BeakerJobsTest(unittest.TestCase):
             self.assertNotIn(job_id,self.driver.page_source)
 
     def test_export_job(self):
-        #submit a job
-        job_id=self.submit_job()
         #open mine_job
-        self.mine_job()
+        job_id=self.mine_job()
         #get xpath of job_id
         xpath_job=self.search_xpath_by_jobid(job_id)
+        filename="J:"+job_id+".xml"
+        filepath=os.getcwd()+"/download/"+filename
+        if os.path.isfile(filepath) :
+            os.remove(filepath)
         #click "Export" button
         self.driver.find_element_by_xpath(xpath_job+"/td[8]/div/a[3]").click()
-        #String script = "document.getElementById('fileName').value='" + "/root/Beaker/beaker-auto/demo.xml" + "';";
-        #((IJavascriptExecutor)driver).executeScript(script);
+        self.assertTrue(os.path.isfile(filepath))
+        self.assertTrue(self.check_string_in_file(filepath,"Automation"))
     
     def tearDown(self):
         pass
