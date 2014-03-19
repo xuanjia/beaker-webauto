@@ -200,6 +200,7 @@ class BeakerSystemTest(unittest.TestCase):
     def tearDown(self):
         self.driver.close()
 
-suite = unittest.TestLoader().loadTestsFromTestCase(BeakerSystemTest)
-unittest.TextTestRunner(verbosity=2).run(suite)
-
+#suite = unittest.TestLoader().loadTestsFromTestCase(BeakerSystemTest)
+#unittest.TextTestRunner(verbosity=2).run(suite)
+if __name__ == '__main__':
+    unittest.main()

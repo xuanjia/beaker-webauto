@@ -25,22 +25,6 @@ class BeakerPageTest(unittest.TestCase):
         driver.get(config.hub_url)
         self.assertIn("Systems",driver.title)
     
-    @staticmethod
-    def get_jobid_from_string(job_string):
-        p=re.compile(r':')
-        job_id=p.split(job_string)[1]
-        return job_id
-    
-    @staticmethod
-    def check_string_in_file(file,string):
-        r=open(file)
-        found = False
-        for line in r:
-            if string in line:
-                found = True
-                break
-        return found
-    
     def test_click_system_page(self):
         driver=self.driver
         system_page={'/':'Systems','/available/':'Available Systems','/free/':'Free Systems'}
@@ -109,6 +93,7 @@ class BeakerPageTest(unittest.TestCase):
     def tearDown(self):
         self.driver.close()
 
-suite = unittest.TestLoader().loadTestsFromTestCase(BeakerPageTest)
-unittest.TextTestRunner(verbosity=2).run(suite)
-
+#suite = unittest.TestLoader().loadTestsFromTestCase(BeakerPageTest)
+#unittest.TextTestRunner(verbosity=2).run(suite)
+if __name__ == '__main__':
+    unittest.main()
