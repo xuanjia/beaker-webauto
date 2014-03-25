@@ -117,9 +117,9 @@ class BeakerSystemTest(unittest.TestCase):
 
     def toggle_set_default(self):
         self.driver.find_element_by_id("showadvancedsearch").click() 
-        self.driver.implicitly_wait(4)
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID,'customcolumns')))
         self.driver.find_element_by_id("customcolumns").click()
-        self.driver.implicitly_wait(4)
+        self.driver.implicitly_wait(10)
         self.driver.find_element_by_id("selectdefault").click()
         self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
 
@@ -200,7 +200,7 @@ class BeakerSystemTest(unittest.TestCase):
     def tearDown(self):
         self.driver.close()
 
-#suite = unittest.TestLoader().loadTestsFromTestCase(BeakerSystemTest)
-#unittest.TextTestRunner(verbosity=2).run(suite)
-if __name__ == '__main__':
-    unittest.main()
+suite = unittest.TestLoader().loadTestsFromTestCase(BeakerSystemTest)
+unittest.TextTestRunner(verbosity=2).run(suite)
+#if __name__ == '__main__':
+#    unittest.main()

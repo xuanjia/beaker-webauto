@@ -44,6 +44,7 @@ class BeakerJobsTest(unittest.TestCase):
     def get_jobid_from_list(self, anchor):
         xpath="//tbody/tr[%s]/td[1]/a[contains(@href,'./')]" % anchor
         job_string=self.driver.find_element_by_xpath(xpath).text
+        print job_string
         job_id=self.get_id_from_string(job_string)
         return job_id
 
@@ -126,7 +127,23 @@ class BeakerJobsTest(unittest.TestCase):
             xpath_job=self.search_xpath_by_jobid(job_id)
             count=count+1
         return True
-    
+   
+    def wait_job_end(self,job_id):
+        driver=self.driver
+        driver.get(config.hub_url+"jobs")        
+        xpath_job=self.search_xpath_by_jobid(job_id)
+        job_status=driver.find_element_by_xpath(xpath_job+"/td[6]").text
+        count=1
+        while job_status != "Completed" and job_status != "Cancelled" and job_status != "Aborted" :
+            time.sleep(60)
+            count=count+1
+            if count > 60:
+                return False
+            driver.refresh()
+            xpath_job=self.search_xpath_by_jobid(job_id)
+            job_status=driver.find_element_by_xpath(xpath_job+"/td[6]").text
+        return True
+
     def mine_job(self):
         #return the first job id
         driver=self.driver
@@ -159,7 +176,7 @@ class BeakerJobsTest(unittest.TestCase):
         recipe_set_string=self.driver.find_element_by_xpath("//td[@class='value'][1]").text
         return self.get_id_from_string(recipe_set_string)
 
-    def test_cancel_job(self):
+    def Dtest_cancel_job(self):
         #submit a job
         job_id=self.submit_job()
         #open mine_job
@@ -176,7 +193,7 @@ class BeakerJobsTest(unittest.TestCase):
             self.driver.find_element_by_xpath("//input[@class='submitbutton']").click()
             self.assertIn("Successfully cancelled job",self.driver.page_source)
     
-    def test_delete_job(self):
+    def Dtest_delete_job(self):
         #submit a job
         job_id=self.submit_job()
         #open mine_job
@@ -197,7 +214,7 @@ class BeakerJobsTest(unittest.TestCase):
             self.driver.refresh()
             self.assertNotIn(job_id,self.driver.page_source)
 
-    def test_export_job(self):
+    def Dtest_export_job(self):
         #open mine_job
         job_id=self.mine_job()
         #get xpath of job_id
@@ -210,7 +227,7 @@ class BeakerJobsTest(unittest.TestCase):
         self.driver.find_element_by_xpath(xpath_job+"/td[8]/div/a[3]").click()
         self.assertTrue(os.path.isfile(filepath))
         self.assertTrue(self.check_string_in_file(filepath,"Automation"))
-    def test_submit_job(self): 
+    def Dtest_submit_job(self): 
         driver=self.driver
         driver.get(config.hub_url+"jobs/new")
         driver.find_element_by_id("jobs_filexml").send_keys(os.getcwd()+"/selenium/demo.xml")
@@ -220,7 +237,7 @@ class BeakerJobsTest(unittest.TestCase):
         job_id=self.get_jobid_after_submit()
         self.cancel_job(job_id)
     
-    def test_clone_job(self):
+    def Dtest_clone_job(self):
         driver=self.driver
         job_id=self.mine_job()
         #clone the first job
@@ -232,7 +249,7 @@ class BeakerJobsTest(unittest.TestCase):
         job_id=self.get_jobid_after_submit()
         self.cancel_job(job_id)
 
-    def test_simple_search(self):
+    def Dtest_simple_search(self):
         driver=self.driver
         job_id=self.mine_job()
         #simple search
@@ -244,7 +261,7 @@ class BeakerJobsTest(unittest.TestCase):
         job_id_1=str(int(job_id)-1)
         self.assertNotIn(job_id_1, page)
 
-    def test_simple_search_lookupid(self):
+    def Dtest_simple_search_lookupid(self):
         driver=self.driver
         job_id=self.mine_job()
         #simple search
@@ -256,7 +273,7 @@ class BeakerJobsTest(unittest.TestCase):
         job_id_1=str(int(job_id)-1)
         self.assertNotIn(job_id_1, page)
 
-    def test_simple_search_queued(self):
+    def Dtest_simple_search_queued(self):
         driver=self.driver
         job_id=self.submit_job()
         self.wait_job_status(job_id,"Queued")
@@ -266,7 +283,7 @@ class BeakerJobsTest(unittest.TestCase):
         self.assertIn(job_id, page)
         self.cancel_job(job_id)
 
-    def test_simple_search_running(self):
+    def Dtest_simple_search_running(self):
         driver=self.driver
         job_id=self.submit_job()
         self.wait_job_status(job_id,"Running")
@@ -276,7 +293,7 @@ class BeakerJobsTest(unittest.TestCase):
         self.assertIn(job_id, page)
         self.cancel_job(job_id)
 
-    def test_simple_search_complete(self):
+    def Dtest_simple_search_complete(self):
         driver=self.driver
         self.mine_job()
         input=driver.find_element_by_xpath("//input[@class='search-query']")
@@ -318,7 +335,7 @@ class BeakerJobsTest(unittest.TestCase):
         self.driver.find_element_by_xpath("//tr[@id='jobsearch_1']/td/a[@class='btn']").click()
         self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
 
-    def test_job_advance_search(self):
+    def Dtest_job_advance_search(self):
         driver=self.driver
         job_id=self.submit_job()
         self.cancel_job(job_id)
@@ -333,7 +350,7 @@ class BeakerJobsTest(unittest.TestCase):
         job_id_2=self.get_jobid_from_list(1)
         self.assertTrue(job_id==job_id_2)
     
-    def test_watchdog_list(self):
+    def Dtest_watchdog_list(self):
         driver=self.driver
         job_id=self.submit_job()
         self.wait_job_status(job_id,"Running")
@@ -383,14 +400,14 @@ class BeakerJobsTest(unittest.TestCase):
         self.driver.find_element_by_xpath("//tr[@id='tasksearch_1']/td/a[@class='btn']").click()
         self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
 
-    def test_task_libray_simple_search(self):
+    def Dtest_task_libray_simple_search(self):
         driver=self.driver
         driver.get(config.hub_url+'tasks/')
         task_name="beaker-client"
         self.task_simple_search(task_name)
         self.assertIn(task_name,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
 
-    def test_task_libray_advance_search(self):
+    def Dtest_task_libray_advance_search(self):
         driver=self.driver
         driver.get(config.hub_url+'tasks/')
         task_name="beaker-client"
@@ -441,7 +458,7 @@ class BeakerJobsTest(unittest.TestCase):
         self.driver.find_element_by_xpath("//tr[@id='recipesearch_1']/td/a[@class='btn']").click()
         self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
 
-    def test_recipe_simple_search(self):
+    def Dtest_recipe_simple_search(self):
         driver=self.driver
         job_id=self.submit_job()
         self.wait_job_status(job_id,"Running")
@@ -452,7 +469,7 @@ class BeakerJobsTest(unittest.TestCase):
         self.assertIn(recipe_id,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
         self.cancel_job(job_id)
 
-    def test_task_libray_advance_search(self):
+    def Dtest_task_libray_advance_search(self):
         driver=self.driver
         job_id=self.submit_job()
         self.wait_job_status(job_id,"Running")
@@ -468,7 +485,7 @@ class BeakerJobsTest(unittest.TestCase):
         self.assertIn(recipe_id,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
         self.cancel_job(job_id)
 
-    def test_click_clone_recipe_set_on_recipe_search_result(self):
+    def Dtest_click_clone_recipe_set_on_recipe_search_result(self):
         driver=self.driver
         job_id=self.submit_job()
         self.open_job_page(job_id)
@@ -483,10 +500,38 @@ class BeakerJobsTest(unittest.TestCase):
         job_new_id=self.get_jobid_after_submit()
         self.cancel_job(job_new_id)
         self.cancel_job(job_id)
+     
+    def test_check_job_details_page(self):
+        driver=self.driver
+        #job_id=self.submit_job()
+        job_id=3978
+        self.assertTrue(self.wait_job_end(job_id))
+        self.open_job_page(job_id)
+        recipeset_id=self.get_recipe_set_id_from_openning_job_page()
+        recipe_id=self.get_recipe_id_from_openning_job_page()
+        driver.find_element_by_xpath("//a[@class='btn results-tab']").click()
+        driver.find_element_by_xpath("//a[@class='btn hide-results-tab']").click()
+        driver.find_element_by_xpath("//button[@class='btn']").click()
+        driver.find_element_by_xpath("//button[@class='btn collapsed']").click()
+        #update whiteboard
+        driver.find_element_by_xpath("//a[@class='list']").click()
+        driver.find_element_by_id("whiteboard").send_keys("Automation-test")
+        driver.find_element_by_xpath("//button[@type='submit']").click()
+        #update Rentention Tag
+        driver.refresh()
+        table=WebDriverSelect(driver.find_element_by_id("job_retentiontag"))
+        table.select_by_index(1)
+        element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='ui-dialog-buttonset']/button[1]")))
+        element.click()
+        driver.refresh()
+        table=WebDriverSelect(driver.find_element_by_id("job_retentiontag"))
+        table.select_by_index(2)
+        element = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='ui-dialog-buttonset']/button[1]")))
+        element.click()
+        #
 
     def tearDown(self):
-        pass
-        #self.driver.close()
+        self.driver.close()
 
 suite = unittest.TestLoader().loadTestsFromTestCase(BeakerJobsTest)
 unittest.TextTestRunner(verbosity=2).run(suite)

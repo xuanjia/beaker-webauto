@@ -33,6 +33,8 @@ class BeakerPageTest(unittest.TestCase):
             driver.implicitly_wait(2)
             subpage_xpath="//a[@href='"+sub_page+"']"
             driver.find_element_by_xpath(subpage_xpath).click()
+            wait = WebDriverWait(driver, 10)
+            element = wait.until(EC.title_contains(system_page[sub_page]))
             self.assertIn(system_page[sub_page],driver.title)
      
     def test_click_devices_page(self):
@@ -46,6 +48,8 @@ class BeakerPageTest(unittest.TestCase):
             driver.implicitly_wait(2)
             subpage_xpath="//a[@href='/devices/"+sub_page+"']"
             driver.find_element_by_xpath(subpage_xpath).click()
+            wait = WebDriverWait(driver, 10)
+            element = wait.until(EC.title_contains("Devices"))
             self.assertIn("Devices",driver.title)
             self.assertIn(sub_page,driver.page_source)
     
@@ -57,6 +61,8 @@ class BeakerPageTest(unittest.TestCase):
             driver.implicitly_wait(2)
             subpage_xpath="//a[@href='"+sub_page+"']"
             driver.find_element_by_xpath(subpage_xpath).click()
+            wait = WebDriverWait(driver, 10)
+            element = wait.until(EC.title_contains(distro_page[sub_page]))
             self.assertIn(distro_page[sub_page],driver.title)
      
     def test_click_scheduler_page(self):
@@ -67,6 +73,8 @@ class BeakerPageTest(unittest.TestCase):
             driver.implicitly_wait(2)
             subpage_xpath="//a[@href='"+sub_page+"']"
             driver.find_element_by_xpath(subpage_xpath).click()
+            wait = WebDriverWait(driver, 10)
+            element = wait.until(EC.title_contains(scheduler_page[sub_page]))
             self.assertIn(scheduler_page[sub_page],driver.title)
 
     def test_click_reports_page(self):
@@ -78,6 +86,8 @@ class BeakerPageTest(unittest.TestCase):
             driver.implicitly_wait(2)
             subpage_xpath="//a[@href='"+sub_page+"']"
             driver.find_element_by_xpath(subpage_xpath).click()
+            wait = WebDriverWait(driver, 10)
+            element = wait.until(EC.title_contains(reports_page[sub_page]))
             self.assertIn(reports_page[sub_page],driver.title)
 
     def test_click_activity_page(self):
@@ -88,6 +98,8 @@ class BeakerPageTest(unittest.TestCase):
             driver.implicitly_wait(2)
             subpage_xpath="//a[@href='"+sub_page+"']"
             driver.find_element_by_xpath(subpage_xpath).click()
+            wait = WebDriverWait(driver, 10)
+            element = wait.until(EC.title_contains(activity_page[sub_page]))
             self.assertIn(activity_page[sub_page],driver.title)
 
     def tearDown(self):
