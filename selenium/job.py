@@ -49,6 +49,8 @@ class BeakerJobsTest(unittest.TestCase):
 
     def get_jobid_after_submit(self):
         driver=self.driver
+        #wait = WebDriverWait(driver, 30)
+        #element=wait.until(EC.text_to_be_present_in_element_value((By.XPATH, "//div[@class='alert flash']"),"Success! job id:"))
         driver.implicitly_wait(30)
         self.assertIn("Success! job id:",driver.page_source)
         #get job id
@@ -231,7 +233,7 @@ class BeakerJobsTest(unittest.TestCase):
     def test_submit_job(self): 
         driver=self.driver
         driver.get(config.hub_url+"jobs/new")
-        driver.find_element_by_id("jobs_filexml").send_keys(os.getcwd()+"/selenium/demo.xml")
+        driver.find_element_by_id("jobs_filexml").send_keys(os.getcwd()+"/demo.xml")
         driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
         driver.find_element_by_xpath("//button[@class='btn btn-primary btn-block']").click()
         #check the new job id
@@ -362,64 +364,6 @@ class BeakerJobsTest(unittest.TestCase):
         self.assertIn(fqdn,driver.page_source)
         self.cancel_job(job_id)
 
-    def task_simple_search(self,task_name):
-        simple_search=self.driver.find_element_by_xpath("//input[@class='search-query']")
-        simple_search.send_keys(task_name)
-        simple_search.send_keys(Keys.RETURN)
-    
-    def task_advance_search_process(self,task_name,task_type,task_description):
-        driver=self.driver
-        driver.find_element_by_id("showadvancedsearch").click()
-        driver.implicitly_wait(4)
-        table=WebDriverSelect(driver.find_element_by_id("tasksearch_0_table"))
-        table.select_by_value("Name")
-        operation=WebDriverSelect(driver.find_element_by_id("tasksearch_0_operation"))
-        operation.select_by_value("contains")
-        value=driver.find_element_by_id("tasksearch_0_value")
-        value.send_keys(task_name)
-        driver.find_element_by_xpath("//a[@id='doclink']").click()
-        table=WebDriverSelect(driver.find_element_by_id("tasksearch_1_table"))
-        table.select_by_value("Types")
-        operation=WebDriverSelect(driver.find_element_by_id("tasksearch_1_operation"))
-        operation.select_by_value("contains")
-        value=driver.find_element_by_id("tasksearch_1_value")
-        value.send_keys(task_type)
-        driver.find_element_by_xpath("//a[@id='doclink']").click()
-        table=WebDriverSelect(driver.find_element_by_id("tasksearch_2_table"))
-        table.select_by_value("Description")
-        operation=WebDriverSelect(driver.find_element_by_id("tasksearch_2_operation"))
-        operation.select_by_value("contains")
-        value=driver.find_element_by_id("tasksearch_2_value")
-        value.send_keys(task_description)
-
-    def task_advance_search(self,task_name,task_type,task_description):
-        self.task_advance_search_process(task_name,task_type,task_description)
-        self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
-
-    def task_advance_search_2(self,task_name,task_type,task_description):
-        self.task_advance_search_process(task_name,task_type,task_description)
-        self.driver.find_element_by_xpath("//tr[@id='tasksearch_1']/td/a[@class='btn']").click()
-        self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
-
-    def test_task_libray_simple_search(self):
-        driver=self.driver
-        driver.get(config.hub_url+'tasks/')
-        task_name="beaker-client"
-        self.task_simple_search(task_name)
-        self.assertIn(task_name,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
-
-    def test_task_libray_advance_search(self):
-        driver=self.driver
-        driver.get(config.hub_url+'tasks/')
-        task_name="beaker-client"
-        task_type="Sanity"
-        task_description="beaker client testing"
-        self.task_advance_search(task_name,task_type,task_description)
-        self.assertIn(task_name,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
-        driver.get(config.hub_url+'tasks/')
-        self.task_advance_search_2(task_name,task_type,task_description)
-        self.assertIn(task_name,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
-
     def recipe_simple_search(self,recipe_id):
         simple_search=self.driver.find_element_by_xpath("//input[@class='search-query']")
         simple_search.send_keys(recipe_id)
@@ -470,7 +414,7 @@ class BeakerJobsTest(unittest.TestCase):
         self.assertIn(recipe_id,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
         self.cancel_job(job_id)
 
-    def test_task_libray_advance_search(self):
+    def test_recipe_advance_search(self):
         driver=self.driver
         job_id=self.submit_job()
         self.wait_job_status(job_id,"Running")
