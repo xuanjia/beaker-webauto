@@ -68,7 +68,7 @@ class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
         self.driver.find_element_by_xpath("//tr[@id='distrosearch_1']/td/a[@class='btn']").click()
         self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
 
-    def distro_tree_advance_search_process(self,name,osmajor):
+    def distro_tree_advance_search_process(self,name,osmajor,arch="",variant=""):
         driver=self.driver
         driver.find_element_by_id("showadvancedsearch").click()
         driver.implicitly_wait(2)
@@ -86,9 +86,30 @@ class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
         operation.select_by_value("contains")
         value=driver.find_element_by_id("search_1_value")
         value.send_keys(osmajor)
-    
-    def distro_tree_advance_search(self,name,osmajor):
-        self.distro_tree_advance_search_process(name,osmajor)
+        i='2';
+        if arch != "" :
+                print arch
+		driver.find_element_by_xpath("//a[@id='doclink']").click()
+                driver.implicitly_wait(4)
+                table=WebDriverSelect(driver.find_element_by_id("search_"+i+"_table"))
+                table.select_by_value("Arch")
+                operation=WebDriverSelect(driver.find_element_by_id("search_"+i+"_operation"))
+                operation.select_by_value("is")
+                value=WebDriverSelect(driver.find_element_by_id("search_"+i+"_value"))
+                value.select_by_value("x86_64")
+                i='3'
+        if variant != "" :
+                driver.find_element_by_xpath("//a[@id='doclink']").click()
+                driver.implicitly_wait(4)
+                table=WebDriverSelect(driver.find_element_by_id("search_"+i+"_table"))
+                table.select_by_value("Variant")
+                operation=WebDriverSelect(driver.find_element_by_id("search_"+i+"_operation"))
+                operation.select_by_value("contains")
+                value=driver.find_element_by_id("search_"+i+"_value")
+                value.send_keys(variant)
+               
+    def distro_tree_advance_search(self,name,osmajor,arch="",variant=""):
+        self.distro_tree_advance_search_process(name,osmajor,arch,variant)
         self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
 
     def distro_tree_advance_search_2(self,name,osmajor):
@@ -135,7 +156,28 @@ class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
         self.driver.get(config.hub_url+"distrotrees/")
         self.distro_tree_advance_search_2(name,osmajor)
         self.assertIn(id,self.driver.page_source)
+    
+    def test_distro_pick_system(self):
+        driver=self.driver
+        driver.get(config.hub_url+"distrotrees/")
+        self.distro_tree_advance_search("RHEL-6.5","RedHatEnterpriseLinux6","x86_64","Server")
+        driver.find_element_by_xpath("//tr[1]/td[8]/div/a[1]").click()
+        self.assertIn("Reserve Systems",driver.title)
+        driver.find_element_by_xpath("//tr[1]/td[8]").click()
+        driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
+        job_id=self.get_jobid_after_submit()
+        self.cancel_job(job_id)
 
+    def test_distro_pick_any_system(self):
+        driver=self.driver
+        driver.get(config.hub_url+"distrotrees/")
+        self.distro_tree_advance_search("RHEL-6.5","RedHatEnterpriseLinux6","x86_64","Server")
+        driver.find_element_by_xpath("//tr[1]/td[8]/div/a[2]").click()
+        self.assertIn("Reserve Any System",driver.title)
+        driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
+        job_id=self.get_jobid_after_submit()
+        self.cancel_job(job_id)
+    
     def tearDown(self):
         self.driver.close()
 
