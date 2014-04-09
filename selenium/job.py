@@ -478,6 +478,48 @@ class BeakerJobsTest(unittest.TestCase):
         driver.refresh()
         driver.find_element_by_xpath("//a[contains(@href,'kickstart')]").click()
         self.assertIn("%post",driver.page_source)
+    
+    def test_reserve_workflow_manual_take_system(self):
+        driver=self.driver
+        driver.get(config.hub_url+"reserveworkflow")
+        family=WebDriverSelect(driver.find_element_by_id("form_osmajor"))
+        family.select_by_value("RedHatEnterpriseLinux6")
+        tag=WebDriverSelect(driver.find_element_by_id("form_tag"))
+        tag.select_by_value("RHEL-6.5-RC-1.3")
+        distro=WebDriverSelect(driver.find_element_by_id("form_distro"))
+        distro.select_by_value("RHEL-6.5")
+        lab=WebDriverSelect(driver.find_element_by_id("form_lab_controller_id"))
+        lab.select_by_value("1")
+        distro_tree=WebDriverSelect(driver.find_element_by_id("form_distro_tree_id"))
+        driver.implicitly_wait(10) 
+        distro_tree.select_by_visible_text("RHEL-6.5 Server x86_64")
+        driver.find_element_by_xpath("//button[@class='btn search']").click()
+        self.assertIn("Reserve Systems",driver.title)
+        driver.find_element_by_xpath("//tr[1]/td[8]").click()
+        self.assertIn("System to Provision",driver.page_source)
+        driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
+        job_id=self.get_jobid_after_submit()
+        self.cancel_job(job_id)
+
+    def test_reserve_workflow_autopick(self):
+        driver=self.driver
+        driver.get(config.hub_url+"reserveworkflow")
+        family=WebDriverSelect(driver.find_element_by_id("form_osmajor"))
+        family.select_by_value("RedHatEnterpriseLinux6")
+        tag=WebDriverSelect(driver.find_element_by_id("form_tag"))
+        tag.select_by_value("RHEL-6.5-RC-1.3")
+        distro=WebDriverSelect(driver.find_element_by_id("form_distro"))
+        distro.select_by_value("RHEL-6.5")
+        lab=WebDriverSelect(driver.find_element_by_id("form_lab_controller_id"))
+        lab.select_by_value("1")
+        distro_tree=WebDriverSelect(driver.find_element_by_id("form_distro_tree_id"))
+        driver.implicitly_wait(10)
+        distro_tree.select_by_visible_text("RHEL-6.5 Server x86_64")
+        driver.find_element_by_xpath("//button[@class='btn auto_pick']").click()
+        self.assertIn("Reserve Any System",driver.page_source)
+        driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
+        job_id=self.get_jobid_after_submit()
+        self.cancel_job(job_id)
 
     def tearDown(self):
         #pass
