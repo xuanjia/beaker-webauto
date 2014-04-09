@@ -3,6 +3,7 @@ import os
 import string
 import re
 import config
+import common
 import time
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -12,20 +13,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select as WebDriverSelect
 
-class BeakerDistroTest(unittest.TestCase):
+class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
     def setUp(self):
-        profile = webdriver.FirefoxProfile(config.user_noadmin)
-        profile.set_preference("browser.download.folderList",2)
-        profile.set_preference("browser.download.manager.showWhenStarting",False)
-        profile.set_preference("browser.download.dir", os.getcwd()+"/download")
-        #set auto download xml file
-        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
-        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")
-        self.driver = webdriver.Firefox(profile)
-        driver = self.driver
-        driver.get(config.hub_url)
-        self.assertIn("Systems",driver.title)
-     
+        self.open_firefox_with_user()
+    
     def get_first_id_from_distro_list(self):
         return self.driver.find_element_by_xpath("//tbody/tr[1]/td[1]/a").text
 

@@ -3,6 +3,7 @@ import os
 import string
 import re
 import config
+import common
 import time
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -11,19 +12,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-class BeakerPageTest(unittest.TestCase):
+class BeakerPageTest(unittest.TestCase, common.BeakerCommonLib):
     def setUp(self):
-        profile = webdriver.FirefoxProfile(config.user_noadmin)
-        profile.set_preference("browser.download.folderList",2)
-        profile.set_preference("browser.download.manager.showWhenStarting",False)
-        profile.set_preference("browser.download.dir", os.getcwd()+"/download")
-        #set auto download xml file
-        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
-        profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")
-        self.driver = webdriver.Firefox(profile)
-        driver = self.driver
-        driver.get(config.hub_url)
-        self.assertIn("Systems",driver.title)
+        self.open_firefox_with_user()
     
     def test_click_system_page(self):
         driver=self.driver
@@ -105,7 +96,5 @@ class BeakerPageTest(unittest.TestCase):
     def tearDown(self):
         self.driver.close()
 
-#suite = unittest.TestLoader().loadTestsFromTestCase(BeakerPageTest)
-#unittest.TextTestRunner(verbosity=2).run(suite)
 if __name__ == '__main__':
     unittest.main()
