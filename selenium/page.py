@@ -14,6 +14,7 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class BeakerPageTest(unittest.TestCase, common.BeakerCommonLib):
     def setUp(self):
+        self.prepare_environment()
         self.open_firefox_with_user()
     
     def test_click_system_page(self):

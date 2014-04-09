@@ -37,9 +37,9 @@ class BeakerCommonLib(object):
         #set auto download xml file
         profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/xml")
         profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")
-
         self.driver = webdriver.Firefox(profile)
         driver = self.driver
+        driver.get(config.hub_url+"mine")
         driver.get(config.hub_url)
 
     def open_firefox_with_admin(self):
@@ -52,8 +52,43 @@ class BeakerCommonLib(object):
         profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")
         self.driver = webdriver.Firefox(profile)
         driver = self.driver
+        driver.get(config.hub_url+"mine")
         driver.get(config.hub_url)
+        
     
+    def create_group(self,name,password):
+        driver=self.driver
+        driver.get(config.hub_url+"groups/")
+        driver.find_element_by_xpath("//a[@class='btn btn-primary']").click()
+        driver.find_element_by_id("Group_group_name").send_keys(name)
+        driver.find_element_by_id("Group_display_name").send_keys(name)
+        driver.find_element_by_id("Group_root_password").send_keys(password)
+        driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
+
+    def prepare_environment(self):
+        #check the test system is available, if not,make it available.
+        #check the group is availabe, if not, make it available.
+        self.open_firefox_with_admin()
+        driver=self.driver
+        driver.get(config.hub_url+"groups/")
+        simple_search=driver.find_element_by_id("Search_group_text")
+        simple_search.send_keys(config.group_name)
+        simple_search.send_keys(Keys.RETURN)
+        if "Items found: 0" in driver.page_source == True :
+            #create group
+            self.create_group(config.group_name, config.group_password)
+        #make sure user is in that specific group
+        driver.get(config.hub_url+"groups/edit?group_name="+config.group_name)
+        if config.username_1_noadmin in driver.page_source == False :
+            #add this user in
+            driver.find_element_by_id("GroupUser_user_text").send_keys(config.username_1_noadmin)
+            driver.find_element_by_id("GroupUser_user_text").send_keys(Keys.RETURN)
+        if config.username_1_noadmin in driver.page_source == False :
+            #add this user in
+            driver.find_element_by_id("GroupUser_user_text").send_keys(config.username_admin)
+            driver.find_element_by_id("GroupUser_user_text").send_keys(Keys.RETURN)
+        self.driver.close()
+     
     def get_jobid_after_submit(self):
         driver=self.driver
         driver.implicitly_wait(30)

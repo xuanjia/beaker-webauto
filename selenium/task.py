@@ -16,6 +16,7 @@ from selenium.webdriver.support.select import Select as WebDriverSelect
 
 class BeakerTasksTest(unittest.TestCase,common.BeakerCommonLib):
     def setUp(self):
+	self.prepare_environment()
         self.open_firefox_with_user()
         os.system("sed -i -e s/VERSION=1.*/VERSION=1.0/g ./task/Makefile")
     

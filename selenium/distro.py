@@ -15,6 +15,7 @@ from selenium.webdriver.support.select import Select as WebDriverSelect
 
 class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
     def setUp(self):
+        self.prepare_environment()
         self.open_firefox_with_user()
     
     def get_first_id_from_distro_list(self):

@@ -15,6 +15,7 @@ from selenium.webdriver.support.select import Select as WebDriverSelect
 
 class BeakerSystemTest(unittest.TestCase, common.BeakerCommonLib):
     def setUp(self):
+        self.prepare_environment()
         self.open_firefox_with_user()
      
     def get_first_fqdn_from_system_list(self):
