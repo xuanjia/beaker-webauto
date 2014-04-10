@@ -2,7 +2,6 @@ import unittest
 import os
 import string
 import re
-import config
 import time
 import common
 import glob
@@ -65,26 +64,26 @@ class BeakerTasksTest(unittest.TestCase,common.BeakerCommonLib):
 
     def test_task_libray_simple_search(self):
         driver=self.driver
-        driver.get(config.hub_url+'tasks/')
+        driver.get(self.hub_url+'tasks/')
         task_name="beaker-client"
         self.task_simple_search(task_name)
         self.assertIn(task_name,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
 
     def test_task_libray_advance_search(self):
         driver=self.driver
-        driver.get(config.hub_url+'tasks/')
+        driver.get(self.hub_url+'tasks/')
         task_name="beaker-client"
         task_type="Sanity"
         task_description="beaker client testing"
         self.task_advance_search(task_name,task_type,task_description)
         self.assertIn(task_name,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
-        driver.get(config.hub_url+'tasks/')
+        driver.get(self.hub_url+'tasks/')
         self.task_advance_search_2(task_name,task_type,task_description)
         self.assertIn(task_name,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
 
     def test_new_task(self):
 	driver=self.driver
-        driver.get(config.hub_url+"/tasks/new")
+        driver.get(self.hub_url+"/tasks/new")
         os.system("pushd task;rm -rf *.rpm ;make package >> /dev/null ;popd")
         package_name=''.join(self.get_task_rpm_package_path(os.getcwd()))
         driver.find_element_by_id("task_task_rpm").send_keys(package_name)
@@ -93,7 +92,7 @@ class BeakerTasksTest(unittest.TestCase,common.BeakerCommonLib):
 
     def test_newer_task(self):
         driver=self.driver
-        driver.get(config.hub_url+"/tasks/new")
+        driver.get(self.hub_url+"/tasks/new")
         os.system("pushd task;rm -rf *.rpm ;sed -i -e s/VERSION=1.*/VERSION=1.2/g Makefile;make package >> /dev/null ;popd")
         package_name=''.join(self.get_task_rpm_package_path(os.getcwd()))
         driver.find_element_by_id("task_task_rpm").send_keys(package_name)
@@ -102,7 +101,7 @@ class BeakerTasksTest(unittest.TestCase,common.BeakerCommonLib):
     
     def test_old_task(self):
         driver=self.driver
-        driver.get(config.hub_url+"/tasks/new")
+        driver.get(self.hub_url+"/tasks/new")
         os.system("pushd task;rm -rf *.rpm ;sed -i -e s/VERSION=1.*/VERSION=1.1/g Makefile >> /dev/null ;make package;popd")
         package_name=''.join(self.get_task_rpm_package_path(os.getcwd()))
         driver.find_element_by_id("task_task_rpm").send_keys(package_name)

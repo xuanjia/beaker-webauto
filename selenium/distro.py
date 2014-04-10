@@ -2,7 +2,6 @@ import unittest
 import os
 import string
 import re
-import config
 import common
 import time
 from selenium import webdriver
@@ -119,48 +118,48 @@ class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
         self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
 
     def test_distro_list(self):
-        self.driver.get(config.hub_url+"distros/")
+        self.driver.get(self.hub_url+"distros/")
         id=self.get_first_id_from_distro_list()
         name=self.get_first_name_from_distro_list()
         self.simple_search(name)
         self.assertIn(id,self.driver.page_source)
 
     def test_distro_tree_list(self):
-        self.driver.get(config.hub_url+"distrotrees/")
+        self.driver.get(self.hub_url+"distrotrees/")
         id=self.get_first_id_from_distro_trees_list()
         name=self.get_first_name_from_distro_trees_list()
         self.simple_search(name)
         self.assertIn(id,self.driver.page_source)
 
     def test_distro_family_list(self):
-        self.driver.get(config.hub_url+"distrofamily/")
+        self.driver.get(self.hub_url+"distrofamily/")
         self.assertIn("RedHatEnterpriseLinux",self.driver.page_source)
 
     def test_distro_advance_list(self):
-        self.driver.get(config.hub_url+"distros/")
+        self.driver.get(self.hub_url+"distros/")
         id=self.get_first_id_from_distro_list()
         name=self.get_first_name_from_distro_list()
         osmajor=self.get_first_osmajor_from_distro_list()
         self.distro_advance_search(name,osmajor)
         self.assertIn(id,self.driver.page_source)
-        self.driver.get(config.hub_url+"distros/")
+        self.driver.get(self.hub_url+"distros/")
         self.distro_advance_search_2(name,osmajor)
         self.assertIn(id,self.driver.page_source)
 
     def test_distro_tree_advance_list(self):
-        self.driver.get(config.hub_url+"distrotrees/")
+        self.driver.get(self.hub_url+"distrotrees/")
         id=self.get_first_id_from_distro_trees_list()
         name=self.get_first_name_from_distro_trees_list()
         osmajor=self.get_first_osmajor_from_distro_trees_list()
         self.distro_tree_advance_search(name,osmajor)
         self.assertIn(id,self.driver.page_source)
-        self.driver.get(config.hub_url+"distrotrees/")
+        self.driver.get(self.hub_url+"distrotrees/")
         self.distro_tree_advance_search_2(name,osmajor)
         self.assertIn(id,self.driver.page_source)
     
     def test_distro_pick_system(self):
         driver=self.driver
-        driver.get(config.hub_url+"distrotrees/")
+        driver.get(self.hub_url+"distrotrees/")
         self.distro_tree_advance_search("RHEL-6.5","RedHatEnterpriseLinux6","x86_64","Server")
         driver.find_element_by_xpath("//tr[1]/td[8]/div/a[1]").click()
         self.assertIn("Reserve Systems",driver.title)
@@ -171,7 +170,7 @@ class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
 
     def test_distro_pick_any_system(self):
         driver=self.driver
-        driver.get(config.hub_url+"distrotrees/")
+        driver.get(self.hub_url+"distrotrees/")
         self.distro_tree_advance_search("RHEL-6.5","RedHatEnterpriseLinux6","x86_64","Server")
         driver.find_element_by_xpath("//tr[1]/td[8]/div/a[2]").click()
         self.assertIn("Reserve Any System",driver.title)

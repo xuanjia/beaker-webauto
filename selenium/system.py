@@ -2,7 +2,6 @@ import unittest
 import os
 import string
 import re
-import config
 import common
 import time
 from selenium import webdriver
@@ -31,7 +30,7 @@ class BeakerSystemTest(unittest.TestCase, common.BeakerCommonLib):
 
     def get_first_free_system_information(self):
         driver=self.driver
-        driver.get(config.hub_url+"/free/")
+        driver.get(self.hub_url+"/free/")
         fqdn=self.get_first_fqdn_from_system_list()
         arch=self.get_first_arch_from_system_list()
         status=self.get_first_status_from_system_list()
@@ -116,21 +115,21 @@ class BeakerSystemTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
 
     def test_system_page_all_simple_search(self):
-        self.driver.get(config.hub_url)
+        self.driver.get(self.hub_url)
         fqdn=self.get_first_fqdn_from_system_list()
         self.simple_search(fqdn)
         self.is_system_in_search_result(fqdn)
 
     def test_system_page_avaiable_simple_search(self):
         driver=self.driver
-        driver.get(config.hub_url+"available/")
+        driver.get(self.hub_url+"available/")
         fqdn=self.get_first_fqdn_from_system_list()
         self.simple_search(fqdn)
         self.is_system_in_search_result(fqdn)
 
     def test_system_page_free_simple_search(self):
         driver=self.driver
-        driver.get(config.hub_url+"free/")
+        driver.get(self.hub_url+"free/")
         fqdn=self.get_first_fqdn_from_system_list()
         self.simple_search(fqdn)
         self.is_system_in_search_result(fqdn)
@@ -138,55 +137,55 @@ class BeakerSystemTest(unittest.TestCase, common.BeakerCommonLib):
     def test_system_page_avaiable_advance_search(self):
         driver=self.driver
         fqdn,arch,status=self.get_first_free_system_information()
-        driver.get(config.hub_url+"available/")
+        driver.get(self.hub_url+"available/")
         self.toggle_set_default()
-        driver.get(config.hub_url+"available/")
+        driver.get(self.hub_url+"available/")
         self.advance_search(fqdn,arch,status)
         self.is_system_in_search_result(fqdn)
-        driver.get(config.hub_url+"available/")
+        driver.get(self.hub_url+"available/")
         self.advance_search_2(fqdn,arch,status)
         self.is_system_in_search_result(fqdn)
-        driver.get(config.hub_url+"available/")
+        driver.get(self.hub_url+"available/")
         type="System/Owner"
         self.advance_and_toggle_search(fqdn,arch,status,type)
         self.is_type_in_search_result("Owner")
-        driver.get(config.hub_url+"available/")
+        driver.get(self.hub_url+"available/")
         self.toggle_set_default()
 
     def test_system_page_free_advance_search(self):
         driver=self.driver
         fqdn,arch,status=self.get_first_free_system_information()
-        driver.get(config.hub_url+"free/")
+        driver.get(self.hub_url+"free/")
         self.toggle_set_default()
-        driver.get(config.hub_url+"free/")
+        driver.get(self.hub_url+"free/")
         self.advance_search(fqdn,arch,status)
         self.is_system_in_search_result(fqdn)
-        driver.get(config.hub_url+"free/")
+        driver.get(self.hub_url+"free/")
         self.advance_search_2(fqdn,arch,status)
         self.is_system_in_search_result(fqdn)
-        driver.get(config.hub_url+"free/")
+        driver.get(self.hub_url+"free/")
         type="System/Owner"
         self.advance_and_toggle_search(fqdn,arch,status,type)
         self.is_type_in_search_result("Owner")
-        driver.get(config.hub_url+"free/")
+        driver.get(self.hub_url+"free/")
         self.toggle_set_default()
     
     def test_system_page_all_advance_search(self):
         driver=self.driver
         fqdn,arch,status=self.get_first_free_system_information()
-        driver.get(config.hub_url)
+        driver.get(self.hub_url)
         self.toggle_set_default()
-        driver.get(config.hub_url)
+        driver.get(self.hub_url)
         self.advance_search(fqdn,arch,status)
         self.is_system_in_search_result(fqdn)
-        driver.get(config.hub_url)
+        driver.get(self.hub_url)
         self.advance_search_2(fqdn,arch,status)
         self.is_system_in_search_result(fqdn)
-        driver.get(config.hub_url)
+        driver.get(self.hub_url)
         type="System/Owner"
         self.advance_and_toggle_search(fqdn,arch,status,type)
         self.is_type_in_search_result("Owner")
-        driver.get(config.hub_url)
+        driver.get(self.hub_url)
         self.toggle_set_default()
 
     def tearDown(self):

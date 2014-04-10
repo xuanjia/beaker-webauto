@@ -2,7 +2,6 @@ import unittest
 import os
 import string
 import re
-import config
 import common
 import time
 from selenium import webdriver

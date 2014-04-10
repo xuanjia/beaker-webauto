@@ -2,7 +2,6 @@ import unittest
 import os
 import string
 import re
-import config
 import common
 import time
 from selenium import webdriver
@@ -93,9 +92,10 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
         time.sleep(5)
         self.assertTrue(os.path.isfile(filepath))
         self.assertTrue(self.check_string_in_file(filepath,"Automation"))
+    
     def test_submit_job(self): 
         driver=self.driver
-        driver.get(config.hub_url+"jobs/new")
+        driver.get(self.hub_url+"jobs/new")
         driver.find_element_by_id("jobs_filexml").send_keys(os.getcwd()+"/demo.xml")
         driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
         driver.find_element_by_xpath("//button[@class='btn btn-primary btn-block']").click()
@@ -123,9 +123,9 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
         input.send_keys(job_id)
         input.send_keys(Keys.RETURN)
         page=driver.page_source
-        self.assertIn(job_id, page)
+        self.assertIn("J:"+job_id, page)
         job_id_1=str(int(job_id)-1)
-        self.assertNotIn(job_id_1, page)
+        self.assertNotIn("J:"+job_id_1, page)
 
     def test_simple_search_lookupid(self):
         driver=self.driver
@@ -137,7 +137,7 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
         page=driver.page_source
         self.assertIn("J:"+job_id, page)
         job_id_1=str(int(job_id)-1)
-        self.assertNotIn(job_id_1, page)
+        self.assertNotIn("J:"+job_id_1, page)
 
     def test_simple_search_queued(self):
         driver=self.driver
@@ -207,11 +207,11 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
         self.cancel_job(job_id)
         job_whiteboard="Automation"
         job_tag="scratch"
-        driver.get(config.hub_url+'jobs/')
+        driver.get(self.hub_url+'jobs/')
         self.job_advance_search(job_id,job_whiteboard,job_tag)
         job_id_1=self.get_jobid_from_list(1)
         self.assertTrue(job_id==job_id_1)
-        driver.get(config.hub_url+'jobs/')
+        driver.get(self.hub_url+'jobs/')
         self.job_advance_search_2(job_id,job_whiteboard,job_tag)
         job_id_2=self.get_jobid_from_list(1)
         self.assertTrue(job_id==job_id_2)
@@ -222,7 +222,7 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
         self.wait_job_status(job_id,"Running")
         self.open_job_page(job_id)
         fqdn=self.get_fqdn_from_opening_job_page()
-        driver.get(config.hub_url+"watchdogs/")
+        driver.get(self.hub_url+"watchdogs/")
         self.assertIn(job_id, driver.page_source)
         self.assertIn(fqdn,driver.page_source)
         self.cancel_job(job_id)
@@ -272,7 +272,7 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
         self.wait_job_status(job_id,"Running")
         self.open_job_page(job_id)
         recipe_id=self.get_recipe_id_from_openning_job_page()
-        driver.get(config.hub_url+'recipes/')
+        driver.get(self.hub_url+'recipes/')
         self.recipe_simple_search(recipe_id)
         self.assertIn(recipe_id,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
         self.cancel_job(job_id)
@@ -285,10 +285,10 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
         fqdn=self.get_fqdn_from_opening_job_page()
         distro_name,distro_arch,distro_family=self.get_distro_from_opening_job_page()
         recipe_id=self.get_recipe_id_from_openning_job_page()
-        driver.get(config.hub_url+'recipes/')
+        driver.get(self.hub_url+'recipes/')
         self.recipe_advance_search(recipe_id,distro_arch,fqdn)
         self.assertIn(recipe_id,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
-        driver.get(config.hub_url+'recipes/')
+        driver.get(self.hub_url+'recipes/')
         self.recipe_advance_search_2(recipe_id,distro_arch,fqdn)
         self.assertIn(recipe_id,driver.find_element_by_xpath("//tr[1]/td[1]/a[contains(@href ,'./')]").text)
         self.cancel_job(job_id)
@@ -299,7 +299,7 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
         self.open_job_page(job_id)
         recipe_id=self.get_recipe_id_from_openning_job_page()
         recipe_set_id=self.get_recipe_set_id_from_openning_job_page()
-        driver.get(config.hub_url+'recipes/')
+        driver.get(self.hub_url+'recipes/')
         self.recipe_simple_search(recipe_id)
         driver.find_element_by_xpath("//tr[1]/td[9]").click()
         self.assertIn(recipe_set_id,driver.page_source)
@@ -344,7 +344,7 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
     
     def test_reserve_workflow_manual_take_system(self):
         driver=self.driver
-        driver.get(config.hub_url+"reserveworkflow")
+        driver.get(self.hub_url+"reserveworkflow")
         family=WebDriverSelect(driver.find_element_by_id("form_osmajor"))
         family.select_by_value("RedHatEnterpriseLinux6")
         tag=WebDriverSelect(driver.find_element_by_id("form_tag"))
@@ -366,7 +366,7 @@ class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
 
     def test_reserve_workflow_autopick(self):
         driver=self.driver
-        driver.get(config.hub_url+"reserveworkflow")
+        driver.get(self.hub_url+"reserveworkflow")
         family=WebDriverSelect(driver.find_element_by_id("form_osmajor"))
         family.select_by_value("RedHatEnterpriseLinux6")
         tag=WebDriverSelect(driver.find_element_by_id("form_tag"))
