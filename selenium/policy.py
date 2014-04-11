@@ -47,6 +47,25 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.open_firefox_with_user()
         self.assertTrue(self.find_job_in_mine_job_list(job_id))
     
+    def test_delegate_submit_job_invalid_user(self):
+        driver=self.driver
+        driver.get(self.hub_url+"prefs/")
+        delegate_element=driver.find_element_by_id("SubmissionDelegates_user_text")
+        delegate_element.send_keys(self.username_2_noadmin)
+        delegate_element.send_keys(Keys.RETURN)
+        self.driver.close()
+        self.open_firefox_with_user_2()
+        job_id=self.submit_job(user=self.username_3_noadmin)
+        if job_id == u'0' and "not a valid submission delegate" in self.job_error :
+            self.job_error=u''
+            self.assertTrue(True)
+        else :
+            self.cancel_job(job_id)
+            self.assertTrue(False)
+        self.driver.close()
+        #recover env
+        self.open_firefox_with_user()
+    
     def test_delegate_submit_group_job(self):
         driver=self.driver
         driver.get(self.hub_url+"prefs/")
@@ -65,6 +84,41 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.open_firefox_with_user()
         self.assertTrue(self.find_job_in_mine_group_job_list(job_id))
 
+    def test_delegate_submit_invalid_group_job(self):
+        driver=self.driver
+        driver.get(self.hub_url+"prefs/")
+        delegate_element=driver.find_element_by_id("SubmissionDelegates_user_text")
+        delegate_element.send_keys(self.username_2_noadmin)
+        delegate_element.send_keys(Keys.RETURN)
+        self.driver.close()
+        self.open_firefox_with_user_2()
+        job_id=self.submit_job(user=self.username_1_noadmin,group="admin")
+        if job_id == u'0' and "is not a member of group" in self.job_error :
+            self.job_error = u''
+            self.assertTrue(True)
+        else :
+            self.cancel_job(job_id)
+            self.assertTrue(False)
+        self.driver.close()
+        #recover env
+        self.open_firefox_with_user()
+    
+    def test_create_and_delete_and_update_group_by_admin(self):
+        self.driver.close()
+        self.open_firefox_with_admin()
+        group_name="TestAutomation"
+        self.assertTrue(self.create_group(group_name,"RedHat@4096"))
+        self.add_group_memeber(group_name,self.username_3_noadmin)
+        self.driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        self.assertIn(self.username_3_noadmin, self.driver.page_source)
+        self.remove_group_member(group_name,self.username_3_noadmin)
+        self.driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        #self.assertNotIn(self.username_3_noadmin, self.driver.page_source)
+        self.change_group_password(group_name,"RedHat@j83a54")
+        self.assertIn("OK",self.driver.page_source)
+        self.delete_group(group_name)
+        self.driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        self.assertIn("Need a valid group to search on", self.driver.page_source)
     def tearDown(self):
         self.driver.close()
 

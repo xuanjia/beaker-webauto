@@ -77,10 +77,53 @@ class BeakerCommonLib(object):
         driver.find_element_by_id("Group_display_name").send_keys(name)
         driver.find_element_by_id("Group_root_password").send_keys(password)
         driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
+        count=1
+        while "OK" in driver.page_source == False:
+            if count > 10:
+                return False
+            time.sleep(5)
+            count=count+1
+        return True
+    
+    def add_group_memeber(self,group_name,member_name):
+        driver=self.driver
+        driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        driver.find_element_by_id("GroupUser_user_text").send_keys(self.username_3_noadmin)
+        driver.find_element_by_id("GroupUser_user_text").send_keys(Keys.RETURN)
 
+    def remove_group_member(self,group_name,member_name):
+        driver=self.driver
+        driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        driver.find_element_by_xpath("//a[@class='btn']").click()
+     
+    def change_group_password(self,group_name,password):
+        driver=self.driver
+        driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        driver.find_element_by_id("Group_root_password").clear()
+        driver.find_element_by_id("Group_root_password").send_keys(password)
+        driver.find_element_by_id("Group_root_password").send_keys(Keys.RETURN)
+        count=1
+        while "OK" in driver.page_source == False:
+            if count > 10:
+                return False
+            time.sleep(5)
+            count=count+1
+        return True
+    
+    def delete_group(self,group_name):
+        driver=self.driver
+        driver.get(self.hub_url+"groups/")
+        driver.find_element_by_id("Search_group_text").send_keys(group_name)
+        driver.find_element_by_id("Search_group_text").send_keys(Keys.RETURN)
+        driver.find_element_by_xpath("//a[@class='btn']").click()
+        time.sleep(10)
+        self.driver.find_element_by_xpath("//div[@class='ui-dialog-buttonset']/button[1]").click()
+        time.sleep(10)
+        self.driver.refresh()
     def prepare_environment(self):
         #check the test system is available, if not,make it available.
         #check the group is availabe, if not, make it available.
+        self.username_3_noadmin=config.username_3_noadmin
         self.username_2_noadmin=config.username_2_noadmin
         self.username_1_noadmin=config.username_1_noadmin
         self.user_admin=config.user_admin
@@ -114,6 +157,9 @@ class BeakerCommonLib(object):
         driver=self.driver
         driver.implicitly_wait(30)
         job_string=driver.find_element_by_xpath("//div[@class='alert flash']").text
+        if "because of" in job_string :
+            self.job_error=job_string
+            return u'0'
         p=re.compile(r': ')
         job_id=p.split(job_string)[1]
         return job_id
