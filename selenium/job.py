@@ -14,7 +14,7 @@ from selenium.webdriver.support.select import Select as WebDriverSelect
 
 class BeakerJobsTest(unittest.TestCase, common.BeakerCommonLib):
     def setUp(self):
-        #self.prepare_environment()
+        self.prepare_environment()
         self.open_firefox_with_user()
 
     #assume only one recipy in this job
