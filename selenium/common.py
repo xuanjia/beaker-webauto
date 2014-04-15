@@ -30,7 +30,7 @@ class BeakerCommonLib(object):
         return found
 
     def open_firefox_with_user(self):
-        profile = webdriver.FirefoxProfile(self.user_noadmin)
+        profile = webdriver.FirefoxProfile(self.user_noadmin_1)
         profile.set_preference("browser.download.folderList",2)
         profile.set_preference("browser.download.manager.showWhenStarting",False)
         profile.set_preference("browser.download.dir", os.getcwd()+"/download")
@@ -43,7 +43,7 @@ class BeakerCommonLib(object):
         driver.get(self.hub_url)
 
     def open_firefox_with_user_2(self):
-        profile = webdriver.FirefoxProfile(self.user_admin)
+        profile = webdriver.FirefoxProfile(self.user_noadmin_2)
         profile.set_preference("browser.download.folderList",2)
         profile.set_preference("browser.download.manager.showWhenStarting",False)
         profile.set_preference("browser.download.dir", os.getcwd()+"/download")
@@ -68,7 +68,29 @@ class BeakerCommonLib(object):
         driver.get(self.hub_url+"mine")
         driver.get(self.hub_url)
         
-    
+    def create_new_system(self,fqdn):
+        driver=self.driver
+        driver.get(self.hub_url)
+        simple_search=driver.find_element_by_xpath("//input[@class='search-query']")
+        simple_search.send_keys(fqdn)
+        simple_search.send_keys(Keys.RETURN)
+        if "Items found: 0" in driver.page_source :
+            driver.find_element_by_xpath("//a[@class='btn btn-primary']").click()
+            driver.find_element_by_xpath("//input[@id='form_fqdn']").send_keys(fqdn)
+            lab=WebDriverSelect(driver.find_element_by_id("form_lab_controller_id"))
+            lab.select_by_index(1)
+            Type=WebDriverSelect(driver.find_element_by_id("form_type"))
+            Type.select_by_value("Machine")
+            Status=WebDriverSelect(driver.find_element_by_id("form_status"))
+            Status.select_by_value("Automated")
+            driver.find_element_by_xpath("//a[@class='btn btn-primary']").click()
+        else:
+            driver.get(self.hub_url+"view/"+fqdn)
+            driver.find_element_by_xpath("//a[@class='btn']").click()
+            Type=WebDriverSelect(driver.find_element_by_id("form_status"))
+            Type.select_by_value("Automated")
+            driver.find_element_by_xpath("//a[@class='btn btn-primary']").click()
+         
     def create_group(self,name,password):
         driver=self.driver
         driver.get(self.hub_url+"groups/")
@@ -127,7 +149,8 @@ class BeakerCommonLib(object):
         self.username_2_noadmin=config.username_2_noadmin
         self.username_1_noadmin=config.username_1_noadmin
         self.user_admin=config.user_admin
-        self.user_noadmin=config.user_noadmin
+        self.user_noadmin_1=config.user_noadmin_1
+        self.user_noadmin_2=config.user_noadmin_2
         self.group_name=config.group_name
         self.group_password=config.group_password
         self.username_admin=config.username_admin

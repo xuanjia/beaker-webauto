@@ -119,7 +119,89 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.delete_group(group_name)
         self.driver.get(self.hub_url+"groups/edit?group_name="+group_name)
         self.assertIn("Need a valid group to search on", self.driver.page_source)
+   
+    def action_access_policy_process_by_user(self,action,fqdn,access_policy,user):
+        driver=self.driver
+        table_list=driver.find_elements_by_xpath("//tbody[@class='user-rows']/tr/td[1]")
+        for i in range(len(table_list)) :
+            if user in table_list[i].text :
+                break
+        j=str(i+2)
+        policy_list={'view':'2','edit_policy':'3','edit_system':'4','loan_any':'5','loan_self':'6','control_system':'7','reserve':'8'}
+        access_policy_element=driver.find_element_by_xpath("//tbody[@class='user-rows']/tr["+j+"]/td["+policy_list[access_policy]+"]/input")
+        if action == "set" :
+            if not access_policy_element.is_selected() :
+                access_policy_element.click()
+        elif action == "unset" :
+            if access_policy_element.is_selected() :
+                access_policy_element.click()
+        elif action == "check" :
+            if not access_policy_element.is_selected():
+                return False
+            else:
+                return True
+    
+    def action_access_policy_process_by_group(self,action,fqdn,access_policy,group):
+        driver=self.driver
+        table_list=driver.find_elements_by_xpath("//tbody[@class='group-rows']/tr/td[1]")
+        for i in range(len(table_list)) :
+            if user in table_list[i].text :
+                break
+        j=str(i+2)
+        policy_list={'view':'2','edit_policy':'3','edit_system':'4','loan_any':'5','loan_self':'6','control_system':'7','reserve':'8'}
+        access_policy_element=driver.find_element_by_xpath("//tbody[@class='group-rows']/tr["+j+"]/td["+policy_list[access_policy]+"]/input")
+        if action == "set":
+            if not access_policy_element.is_selected :
+                access_policy_element.click()
+                driver.find_element_by_xpath("//div[@id='access-policy']//div[@class='form-actions']/button[1]").click()
+        elif action == "unset":
+            if access_policy_element.is_selected :
+                access_policy_element.click()
+                driver.find_element_by_xpath("//div[@id='access-policy']//div[@class='form-actions']/button[1]").click()
+        elif action == "check":
+            if not access_policy_element.is_selected :
+                return False
+            else:
+                return True
+    
+    def action_access_policy(self,action,fqdn,access_policy,user=None,group=None):
+        driver=self.driver
+        driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-user-input")))
+        if user != None :
+            user_input=driver.find_element_by_id("access-policy-user-input")
+            user_input.send_keys(user)
+            user_input.send_keys(Keys.RETURN)
+            driver.find_element_by_xpath("//tbody[@class='user-rows']//button[@class='btn add']").click()
+            self.action_access_policy_process_by_user(action,fqdn,access_policy,user)
+            time.sleep(20)
+        if group != None :
+            group_input=driver.find_element_by_id("access-policy-group-input")
+            group_input.send_keys(group)
+            group_input.send_keys(Keys,RETURN)
+            driver.find_element_by_xpath("//tbody[@class='group-rows']//button[@class='btn add']").click()    
+            self.action_access_policy_process_by_group(action,fqdn,access_policy,group)     
+            time.sleep(20)
+        return True
+        
+    def test_access_policy_view_by_admin(self):
+        driver=self.driver
+        driver.close()
+        self.open_firefox_with_admin()
+        fqdn="web.auto.com"
+        self.create_new_system(fqdn)
+        self.action_access_policy("set",fqdn,"view",user=self.username_1_noadmin)
+        driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-user-input")))
+        self.assertTrue(self.username_1_noadmin in driver.page_source)
+        driver.close()
+        self.open_firefox_with_user()
+        driver.get(self.hub_url+"view/"+fqdn)
+        self.assertTrue(self.action_access_policy("check",fqdn,"view",user=self.username_1_noadmin))
+        self.action_access_policy("unset",fqdn,"view",user=self.username_1_noadmin)
+    
     def tearDown(self):
+        #pass
         self.driver.close()
 
 if __name__ == '__main__':
