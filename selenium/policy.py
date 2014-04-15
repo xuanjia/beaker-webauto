@@ -178,25 +178,24 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         if group != None :
             group_input=driver.find_element_by_id("access-policy-group-input")
             group_input.send_keys(group)
-            group_input.send_keys(Keys,RETURN)
+            group_input.send_keys(Keys.RETURN)
             driver.find_element_by_xpath("//tbody[@class='group-rows']//button[@class='btn add']").click()    
             self.action_access_policy_process_by_group(action,fqdn,access_policy,group)     
             time.sleep(20)
         return True
-        
+      
     def test_access_policy_view_by_admin(self):
-        driver=self.driver
-        driver.close()
+        self.driver.close()
         self.open_firefox_with_admin()
         fqdn="web.auto.com"
         self.create_new_system(fqdn)
         self.action_access_policy("set",fqdn,"view",user=self.username_1_noadmin)
-        driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
         WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-user-input")))
-        self.assertTrue(self.username_1_noadmin in driver.page_source)
-        driver.close()
+        self.assertTrue(self.username_1_noadmin in self.driver.page_source)
+        self.driver.close()
         self.open_firefox_with_user()
-        driver.get(self.hub_url+"view/"+fqdn)
+        self.driver.get(self.hub_url+"view/"+fqdn)
         self.assertTrue(self.action_access_policy("check",fqdn,"view",user=self.username_1_noadmin))
         self.action_access_policy("unset",fqdn,"view",user=self.username_1_noadmin)
     
