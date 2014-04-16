@@ -132,9 +132,11 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         if action == "set" :
             if not access_policy_element.is_selected() :
                 access_policy_element.click()
+                driver.find_element_by_xpath("//div[@id='access-policy']//div[@class='form-actions']/button[1]").click()
         elif action == "unset" :
             if access_policy_element.is_selected() :
                 access_policy_element.click()
+                driver.find_element_by_xpath("//div[@id='access-policy']//div[@class='form-actions']/button[1]").click()
         elif action == "check" :
             if not access_policy_element.is_selected():
                 return False
@@ -167,19 +169,21 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
     def action_access_policy(self,action,fqdn,access_policy,user=None,group=None):
         driver=self.driver
         driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
-        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-user-input")))
+        time.sleep(20)
         if user != None :
-            user_input=driver.find_element_by_id("access-policy-user-input")
-            user_input.send_keys(user)
-            user_input.send_keys(Keys.RETURN)
-            driver.find_element_by_xpath("//tbody[@class='user-rows']//button[@class='btn add']").click()
+            if action != "check" :
+                user_input=driver.find_element_by_id("access-policy-user-input")
+                user_input.send_keys(user)
+                user_input.send_keys(Keys.RETURN)
+                driver.find_element_by_xpath("//tbody[@class='user-rows']//button[@class='btn add']").click()
             self.action_access_policy_process_by_user(action,fqdn,access_policy,user)
             time.sleep(20)
         if group != None :
-            group_input=driver.find_element_by_id("access-policy-group-input")
-            group_input.send_keys(group)
-            group_input.send_keys(Keys.RETURN)
-            driver.find_element_by_xpath("//tbody[@class='group-rows']//button[@class='btn add']").click()    
+            if user != "check":
+                group_input=driver.find_element_by_id("access-policy-group-input")
+                group_input.send_keys(group)
+                group_input.send_keys(Keys.RETURN)
+                driver.find_element_by_xpath("//tbody[@class='group-rows']//button[@class='btn add']").click()    
             self.action_access_policy_process_by_group(action,fqdn,access_policy,group)     
             time.sleep(20)
         return True
@@ -197,8 +201,11 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.open_firefox_with_user()
         self.driver.get(self.hub_url+"view/"+fqdn)
         self.assertTrue(self.action_access_policy("check",fqdn,"view",user=self.username_1_noadmin))
+        self.driver.close()
+        self.open_firefox_with_admin()
         self.action_access_policy("unset",fqdn,"view",user=self.username_1_noadmin)
-    
+        self.driver.close()
+        self.open_firefox_with_user()
     def tearDown(self):
         #pass
         self.driver.close()
