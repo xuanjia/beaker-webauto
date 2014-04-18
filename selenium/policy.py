@@ -147,7 +147,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         driver=self.driver
         table_list=driver.find_elements_by_xpath("//tbody[@class='group-rows']/tr/td[1]")
         for i in range(len(table_list)) :
-            if user in table_list[i].text :
+            if group in table_list[i].text :
                 break
         j=str(i+2)
         policy_list={'view':'2','edit_policy':'3','edit_system':'4','loan_any':'5','loan_self':'6','control_system':'7','reserve':'8'}
@@ -188,7 +188,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
             time.sleep(20)
         return True
       
-    def test_access_policy_view_by_admin(self):
+    def test_access_policy_view_by_admin_for_user(self):
         self.driver.close()
         self.open_firefox_with_admin()
         fqdn="web.auto.com"
@@ -208,7 +208,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         self.open_firefox_with_user()
 
-    def test_access_policy_edit_policy_by_admin(self):
+    def test_access_policy_edit_policy_by_admin_for_user(self):
         self.driver.close()
         self.open_firefox_with_admin()
         fqdn="web.auto.com"
@@ -233,7 +233,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         self.open_firefox_with_user()
     
-    def test_access_policy_edit_system_by_admin(self):
+    def test_access_policy_edit_system_by_admin_for_user(self):
         self.driver.close()
         self.open_firefox_with_admin()
         fqdn="web.auto.com"
@@ -254,7 +254,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         self.open_firefox_with_user()
     
-    def test_access_policy_loan_any_by_admin(self):
+    def test_access_policy_loan_any_by_admin_for_user(self):
         self.driver.close()
         self.open_firefox_with_admin()
         fqdn="web.auto.com"
@@ -296,7 +296,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         self.open_firefox_with_user()
     
-    def test_access_policy_loan_self_by_admin(self):
+    def test_access_policy_loan_self_by_admin_for_user(self):
         self.driver.close()
         self.open_firefox_with_admin()
         fqdn="web.auto.com"
@@ -335,7 +335,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         self.open_firefox_with_user()
     
-    def test_access_policy_control_system_by_admin(self):
+    def test_access_policy_control_system_by_admin_for_user(self):
         fqdn="web.auto.com"
         access_policy="control_system"
         self.driver.close()
@@ -372,7 +372,192 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         #check 
         time.sleep(10)
         self.assertTrue("You do not have permission to control this system." in self.driver.page_source)
-        
+    ###########For group###################################
+    def test_access_policy_view_by_admin_for_group(self):
+        self.driver.close()
+        self.open_firefox_with_admin()
+        fqdn="web.auto.com"
+        access_policy="view"
+        self.create_new_system(fqdn)
+        self.action_access_policy("set",fqdn,access_policy,group=self.group_name)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-group-input")))
+        self.assertTrue(self.group_name in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn)
+        self.assertTrue(self.action_access_policy("check",fqdn,access_policy,group=self.group_name))
+        self.driver.close()
+        self.open_firefox_with_admin()
+        self.action_access_policy("unset",fqdn,access_policy,group=self.group_name)
+        self.driver.close()
+        self.open_firefox_with_user()
+
+    def test_access_policy_edit_policy_by_admin_for_group(self):
+        self.driver.close()
+        self.open_firefox_with_admin()
+        fqdn="web.auto.com"
+        access_policy="edit_policy"
+        self.create_new_system(fqdn)
+        self.action_access_policy("set",fqdn,access_policy,group=self.group_name)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-group-input")))
+        self.assertTrue(self.group_name in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn)
+        self.assertTrue(self.action_access_policy("check",fqdn,access_policy,group=self.group_name))
+        try: self.driver.find_element_by_id("access-policy-group-input")
+        except NoSuchElementException, e: self.assertFalse(True)
+        self.action_access_policy("set",fqdn,"view",group=self.group_name)
+        self.assertTrue(self.action_access_policy("check",fqdn,"view",group=self.group_name))
+        self.action_access_policy("unset",fqdn,"view",group=self.group_name)
+        self.driver.close()
+        self.open_firefox_with_admin()
+        self.action_access_policy("unset",fqdn,access_policy,group=self.group_name)
+        self.driver.close()
+        self.open_firefox_with_user()
+    
+    def test_access_policy_edit_system_by_admin_for_group(self):
+        self.driver.close()
+        self.open_firefox_with_admin()
+        fqdn="web.auto.com"
+        access_policy="edit_system"
+        self.create_new_system(fqdn)
+        self.action_access_policy("set",fqdn,access_policy,group=self.group_name)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-group-input")))
+        self.assertTrue(self.group_name in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn)
+        try: self.driver.find_element_by_xpath("//a[contains(@href ,'./edit')]")
+        except NoSuchElementException, e: self.assertFalse(True)
+        self.driver.close()
+        self.open_firefox_with_admin()
+        self.action_access_policy("unset",fqdn,access_policy,group=self.group_name)
+        self.driver.close()
+        self.open_firefox_with_user()
+    
+    def test_access_policy_loan_any_by_admin_for_group(self):
+        self.driver.close()
+        self.open_firefox_with_admin()
+        fqdn="web.auto.com"
+        access_policy="loan_any"
+        self.create_new_system(fqdn)
+        self.action_access_policy("set",fqdn,access_policy,group=self.group_name)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-group-input")))
+        self.assertTrue(self.group_name in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn)
+        try: self.driver.find_element_by_id("loan-settings")
+        except NoSuchElementException, e: self.assertFalse(True)
+        self.driver.find_element_by_id("loan-settings").click()
+        time.sleep(10)
+        self.driver.find_element_by_id("form_update_loan_loaned").send_keys(self.username_2_noadmin)
+        self.driver.find_element_by_id("form_update_loan_update").click()
+        time.sleep(10)
+        self.assertTrue(self.username_2_noadmin in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user_2()
+        self.driver.get(self.hub_url+"mine")
+        self.assertTrue(fqdn in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn)
+        self.driver.find_element_by_id("loan-settings").click()
+        time.sleep(10)
+        self.driver.find_element_by_id("form_update_loan_return").click()
+        time.sleep(10)
+        self.driver.close()
+        self.open_firefox_with_user_2()
+        self.driver.get(self.hub_url+"mine")
+        self.assertFalse(fqdn in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_admin()
+        self.action_access_policy("unset",fqdn,access_policy,group=self.group_name)
+        self.driver.close()
+        self.open_firefox_with_user()
+    
+    def test_access_policy_loan_self_by_admin_for_group(self):
+        self.driver.close()
+        self.open_firefox_with_admin()
+        fqdn="web.auto.com"
+        access_policy="loan_self"
+        self.create_new_system(fqdn)
+        self.action_access_policy("set",fqdn,access_policy,group=self.group_name)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-group-input")))
+        self.assertTrue(self.group_name in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn)
+        try: self.driver.find_element_by_id("loan-settings")
+        except NoSuchElementException, e: self.assertFalse(True)
+        self.driver.find_element_by_id("loan-settings").click()
+        time.sleep(10)
+        self.driver.find_element_by_id("form_update_loan_loaned").send_keys(self.username_1_noadmin)
+        self.driver.find_element_by_id("form_update_loan_update").click()
+        time.sleep(10)
+        self.assertTrue(self.username_1_noadmin in self.driver.page_source)
+        self.driver.get(self.hub_url+"mine")
+        self.assertTrue(fqdn in self.driver.page_source)
+        self.driver.get(self.hub_url+"view/"+fqdn)
+        self.driver.find_element_by_id("loan-settings").click()
+        time.sleep(10)
+        self.driver.find_element_by_id("form_update_loan_return").click()
+        time.sleep(10)
+        self.driver.get(self.hub_url+"mine")
+        self.assertFalse(fqdn in self.driver.page_source)
+        #loan to others :ERROR
+        #TBD
+        self.driver.close()
+        #recover env
+        self.open_firefox_with_admin()
+        self.action_access_policy("unset",fqdn,access_policy,group=self.group_name)
+        self.driver.close()
+        self.open_firefox_with_user()
+    
+    def test_access_policy_control_system_by_admin_for_group(self):
+        fqdn="web.auto.com"
+        access_policy="control_system"
+        self.driver.close()
+        self.open_firefox_with_admin()
+        self.create_new_system(fqdn)
+        self.action_access_policy("set",fqdn,access_policy,group=self.group_name)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-group-input")))
+        self.assertTrue(self.group_name in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn+"#commands")
+        time.sleep(60)
+        try: self.driver.find_element_by_xpath("//button[@value='on']")
+        except NoSuchElementException, e: self.assertFalse(True)
+        self.driver.find_element_by_xpath("//button[@value='on']").click()
+        time.sleep(10)
+        alert=self.driver.switch_to_alert()
+        alert.accept()
+        time.sleep(10)
+        alert2=self.driver.switch_to_alert()
+        alert2.accept()
+        time.sleep(10)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#commands")
+        histroy1=self.driver.find_element_by_xpath("//table[@id='beaker_datagrid']/tbody//tr[1]/td[4]")
+        self.assertTrue("on" in histroy1.text)
+        self.driver.close()
+        #recover env
+        self.open_firefox_with_admin()
+        self.action_access_policy("unset",fqdn,access_policy,group=self.group_name)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn+"#commands")
+        #check 
+        time.sleep(10)
+        self.assertTrue("You do not have permission to control this system." in self.driver.page_source)
+     
     def tearDown(self):
         self.driver.close()
 
