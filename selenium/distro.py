@@ -86,27 +86,26 @@ class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
         operation.select_by_value("contains")
         value=driver.find_element_by_id("search_1_value")
         value.send_keys(osmajor)
-        i='2';
+        i='2'
         if arch != "" :
-                print arch
-		driver.find_element_by_xpath("//a[@id='doclink']").click()
-                driver.implicitly_wait(4)
-                table=WebDriverSelect(driver.find_element_by_id("search_"+i+"_table"))
-                table.select_by_value("Arch")
-                operation=WebDriverSelect(driver.find_element_by_id("search_"+i+"_operation"))
-                operation.select_by_value("is")
-                value=WebDriverSelect(driver.find_element_by_id("search_"+i+"_value"))
-                value.select_by_value("x86_64")
-                i='3'
+            driver.find_element_by_xpath("//a[@id='doclink']").click()
+            driver.implicitly_wait(4)
+            table=WebDriverSelect(driver.find_element_by_id("search_"+i+"_table"))
+            table.select_by_value("Arch")
+            operation=WebDriverSelect(driver.find_element_by_id("search_"+i+"_operation"))
+            operation.select_by_value("is")
+            value=WebDriverSelect(driver.find_element_by_id("search_"+i+"_value"))
+            value.select_by_value("x86_64")
+            i='3'
         if variant != "" :
-                driver.find_element_by_xpath("//a[@id='doclink']").click()
-                driver.implicitly_wait(4)
-                table=WebDriverSelect(driver.find_element_by_id("search_"+i+"_table"))
-                table.select_by_value("Variant")
-                operation=WebDriverSelect(driver.find_element_by_id("search_"+i+"_operation"))
-                operation.select_by_value("contains")
-                value=driver.find_element_by_id("search_"+i+"_value")
-                value.send_keys(variant)
+            driver.find_element_by_xpath("//a[@id='doclink']").click()
+            driver.implicitly_wait(4)
+            table=WebDriverSelect(driver.find_element_by_id("search_"+i+"_table"))
+            table.select_by_value("Variant")
+            operation=WebDriverSelect(driver.find_element_by_id("search_"+i+"_operation"))
+            operation.select_by_value("contains")
+            value=driver.find_element_by_id("search_"+i+"_value")
+            value.send_keys(variant)
                
     def distro_tree_advance_search(self,name,osmajor,arch="",variant=""):
         self.distro_tree_advance_search_process(name,osmajor,arch,variant)
@@ -178,10 +177,56 @@ class BeakerDistroTest(unittest.TestCase,common.BeakerCommonLib):
         job_id=self.get_jobid_after_submit()
         self.cancel_job(job_id)
     
+    def test_distro_remove_url(self):
+        self.driver.close()
+        self.open_firefox_with_admin()
+        #add_new_lab_controller
+        self.driver.get(self.hub_url+"labcontrollers/")
+        lab_fqdn="web-lab.auto.com"
+        lab_user="web-lab"
+        lab_password="redhat"
+        lab_email="weblab@auto.com"
+        lab_url="http://text.example.com"
+        if not lab_fqdn in self.driver.page_source :
+            self.driver.find_element_by_xpath("//a[@class='btn btn-primary']").click()
+            self.driver.find_element_by_id("form_fqdn").send_keys(lab_fqdn)
+            self.driver.find_element_by_id("form_lusername").send_keys(lab_user)
+            self.driver.find_element_by_id("form_lpassword").send_keys(lab_password)
+            self.driver.find_element_by_id("form_email").send_keys(lab_email)
+            self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
+        #get lab-control's id
+        self.driver.get(self.hub_url+"labcontrollers/")
+        href=self.driver.find_element_by_link_text(lab_fqdn).get_attribute("href")
+        p=re.compile(r'=')
+        lab_id=p.split(href)[1]
+        #add url for one distros
+        self.driver.get(self.hub_url+"distrotrees/")
+        distro_id=self.driver.find_element_by_xpath("//table[@id='widget']//tr[1]/td[1]").text
+        self.driver.get(self.hub_url+"distrotrees/"+distro_id)
+        lab_select=WebDriverSelect(self.driver.find_element_by_id("lab_controller_id"))
+        lab_select.select_by_value(lab_id)
+        self.driver.find_element_by_id("url").send_keys(lab_url)
+        self.driver.find_element_by_xpath("//button[@class='btn btn-primary']").click()
+        self.assertTrue("Added "+lab_fqdn+" "+lab_url in self.driver.page_source)
+        #delete url for this distro
+        lab_controllers=self.driver.find_elements_by_xpath("//div[@id='lab-controllers']//tbody/tr")
+        for i in range(len(lab_controllers)):
+            if lab_fqdn in lab_controllers[i].text:
+                break;
+        if not lab_fqdn  in lab_controllers[i].text:
+            self.assertTrue(False)
+        i=i+1
+        delete_button="//div[@id='lab-controllers']//tbody/tr["+str(i)+"]/td[3]"
+        self.driver.find_element_by_xpath(delete_button).click()
+        time.sleep(10)
+        self.driver.find_element_by_xpath("//button[@type='button'][1]").click()
+        time.sleep(10)
+        self.driver.refresh()
+        self.assertFalse( lab_url in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
     def tearDown(self):
         self.driver.close()
 
-#suite = unittest.TestLoader().loadTestsFromTestCase(BeakerDistroTest)
-#unittest.TextTestRunner(verbosity=2).run(suite)
 if __name__ == '__main__':
     unittest.main()
