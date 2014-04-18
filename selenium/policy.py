@@ -153,15 +153,15 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         policy_list={'view':'2','edit_policy':'3','edit_system':'4','loan_any':'5','loan_self':'6','control_system':'7','reserve':'8'}
         access_policy_element=driver.find_element_by_xpath("//tbody[@class='group-rows']/tr["+j+"]/td["+policy_list[access_policy]+"]/input")
         if action == "set":
-            if not access_policy_element.is_selected :
+            if not access_policy_element.is_selected() :
                 access_policy_element.click()
                 driver.find_element_by_xpath("//div[@id='access-policy']//div[@class='form-actions']/button[1]").click()
         elif action == "unset":
-            if access_policy_element.is_selected :
+            if access_policy_element.is_selected() :
                 access_policy_element.click()
                 driver.find_element_by_xpath("//div[@id='access-policy']//div[@class='form-actions']/button[1]").click()
         elif action == "check":
-            if not access_policy_element.is_selected :
+            if not access_policy_element.is_selected() :
                 return False
             else:
                 return True
@@ -179,7 +179,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
             self.action_access_policy_process_by_user(action,fqdn,access_policy,user)
             time.sleep(20)
         if group != None :
-            if user != "check":
+            if action != "check":
                 group_input=driver.find_element_by_id("access-policy-group-input")
                 group_input.send_keys(group)
                 group_input.send_keys(Keys.RETURN)
