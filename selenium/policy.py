@@ -329,12 +329,51 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         #loan to others :ERROR
         #TBD
         self.driver.close()
+        #recover env
         self.open_firefox_with_admin()
         self.action_access_policy("unset",fqdn,access_policy,user=self.username_1_noadmin)
         self.driver.close()
         self.open_firefox_with_user()
+    
+    def test_access_policy_control_system_by_admin(self):
+        fqdn="web.auto.com"
+        access_policy="control_system"
+        self.driver.close()
+        self.open_firefox_with_admin()
+        self.create_new_system(fqdn)
+        self.action_access_policy("set",fqdn,access_policy,user=self.username_1_noadmin)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
+        WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-user-input")))
+        self.assertTrue(self.username_1_noadmin in self.driver.page_source)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn+"#commands")
+        time.sleep(60)
+        try: self.driver.find_element_by_xpath("//button[@value='on']")
+        except NoSuchElementException, e: self.assertFalse(True)
+        self.driver.find_element_by_xpath("//button[@value='on']").click()
+        time.sleep(10)
+        alert=self.driver.switch_to_alert()
+        alert.accept()
+        time.sleep(10)
+        alert2=self.driver.switch_to_alert()
+        alert2.accept()
+        time.sleep(10)
+        self.driver.get(self.hub_url+"view/"+fqdn+"#commands")
+        histroy1=self.driver.find_element_by_xpath("//table[@id='beaker_datagrid']/tbody//tr[1]/td[4]")
+        self.assertTrue("on" in histroy1.text)
+        self.driver.close()
+        #recover env
+        self.open_firefox_with_admin()
+        self.action_access_policy("unset",fqdn,access_policy,user=self.username_1_noadmin)
+        self.driver.close()
+        self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"view/"+fqdn+"#commands")
+        #check 
+        time.sleep(10)
+        self.assertTrue("You do not have permission to control this system." in self.driver.page_source)
+        
     def tearDown(self):
-        #pass
         self.driver.close()
 
 if __name__ == '__main__':
