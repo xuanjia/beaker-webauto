@@ -166,7 +166,25 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
             else:
                 return True
     
-    def action_access_policy(self,action,fqdn,access_policy,user=None,group=None):
+    def action_access_policy_process_by_everyone(self,action,fqdn,access_policy):
+        driver=self.driver
+        policy_list={'view':'1','edit_policy':'2','edit_system':'3','loan_any':'4','loan_self':'5','control_system':'6','reserve':'7'}
+        access_policy_element=driver.find_element_by_xpath("//tbody[@class='everybody-row']//td["+policy_list[access_policy]+"]/input")
+        if action == "set":
+            if not access_policy_element.is_selected() :
+                access_policy_element.click()
+                driver.find_element_by_xpath("//div[@id='access-policy']//div[@class='form-actions']/button[1]").click()
+        elif action == "unset":
+            if access_policy_element.is_selected() :
+                access_policy_element.click()
+                driver.find_element_by_xpath("//div[@id='access-policy']//div[@class='form-actions']/button[1]").click()
+        elif action == "check":
+            if not access_policy_element.is_selected() :
+                return False
+            else:
+                return True
+    
+    def action_access_policy(self,action,fqdn,access_policy,user=None,group=None,everyone=None):
         driver=self.driver
         driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
         time.sleep(20)
@@ -177,7 +195,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
                 user_input.send_keys(Keys.RETURN)
                 driver.find_element_by_xpath("//tbody[@class='user-rows']//button[@class='btn add']").click()
             self.action_access_policy_process_by_user(action,fqdn,access_policy,user)
-            time.sleep(20)
+            time.sleep(10)
         if group != None :
             if action != "check":
                 group_input=driver.find_element_by_id("access-policy-group-input")
@@ -185,7 +203,10 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
                 group_input.send_keys(Keys.RETURN)
                 driver.find_element_by_xpath("//tbody[@class='group-rows']//button[@class='btn add']").click()    
             self.action_access_policy_process_by_group(action,fqdn,access_policy,group)     
-            time.sleep(20)
+            time.sleep(10)
+        if everyone != None:
+            self.action_access_policy_process_by_everyone(action,fqdn,access_policy)
+            time.sleep(10)
         return True
       
     def test_access_policy_view_by_admin_for_user(self):
@@ -194,6 +215,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         fqdn="web.auto.com"
         access_policy="view"
         self.create_new_system(fqdn)
+        self.action_access_policy("unset",fqdn,access_policy,everyone="everyone")
         self.action_access_policy("set",fqdn,access_policy,user=self.username_1_noadmin)
         self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
         WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-user-input")))
@@ -205,6 +227,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         self.open_firefox_with_admin()
         self.action_access_policy("unset",fqdn,access_policy,user=self.username_1_noadmin)
+        self.action_access_policy("set",fqdn,access_policy,everyone="everyone")
         self.driver.close()
         self.open_firefox_with_user()
 
@@ -388,6 +411,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         fqdn="web.auto.com"
         access_policy="view"
         self.create_new_system(fqdn)
+        self.action_access_policy("unset",fqdn,access_policy,everyone="everyone")
         self.action_access_policy("set",fqdn,access_policy,group=self.group_name)
         self.driver.get(self.hub_url+"view/"+fqdn+"#access-policy")
         WebDriverWait(self.driver, 60).until(EC.visibility_of_element_located((By.ID,"access-policy-group-input")))
@@ -399,6 +423,7 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         self.open_firefox_with_admin()
         self.action_access_policy("unset",fqdn,access_policy,group=self.group_name)
+        self.action_access_policy("set",fqdn,access_policy,everyone="everyone")
         self.driver.close()
         self.open_firefox_with_user()
 
