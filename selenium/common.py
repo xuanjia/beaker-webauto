@@ -90,6 +90,12 @@ class BeakerCommonLib(object):
             Type=WebDriverSelect(driver.find_element_by_id("form_status"))
             Type.select_by_value("Automated")
             driver.find_element_by_xpath("//a[@class='btn btn-primary']").click()
+        #set power type
+        driver.get(self.hub_url+"view/"+fqdn+"#power")
+        time.sleep(10)
+        Power_type=WebDriverSelect(driver.find_element_by_id("power_power_type_id"))
+        Power_type.select_by_index(1)
+        driver.find_element_by_xpath("//div[@id='power']//button[@class='btn btn-primary']").click
          
     def create_group(self,name,password):
         driver=self.driver
@@ -107,17 +113,54 @@ class BeakerCommonLib(object):
             count=count+1
         return True
     
-    def add_group_memeber(self,group_name,member_name):
+    def delete_group(self,group_name):
+        driver=self.driver
+        driver.get(self.hub_url+'groups/')
+        driver.find_element_by_id('Search_group_text').send_keys(group_name)
+        driver.find_element_by_id('Search_group_text').send_keys(Keys.RETURN)
+        driver.find_element_by_xpath("//form[@method='post']/a[1]").click()
+            
+    def add_group_member(self,group_name,member_name):
         driver=self.driver
         driver.get(self.hub_url+"groups/edit?group_name="+group_name)
-        driver.find_element_by_id("GroupUser_user_text").send_keys(self.username_3_noadmin)
+        driver.find_element_by_id("GroupUser_user_text").send_keys(member_name)
         driver.find_element_by_id("GroupUser_user_text").send_keys(Keys.RETURN)
 
     def remove_group_member(self,group_name,member_name):
         driver=self.driver
         driver.get(self.hub_url+"groups/edit?group_name="+group_name)
-        driver.find_element_by_xpath("//a[@class='btn']").click()
-     
+        table_list=driver.find_elements_by_xpath("//table[@id='group_members_grid']/tbody/tr/td[1]")
+        for i in range(len(table_list)) :
+            if member_name in table_list[i].text :
+                break
+        j=str(i+1)
+        element=driver.find_element_by_xpath("//table[@id='group_members_grid']/tbody/tr["+j+"]/td[3]/a")
+        element.click()
+    
+    def grant_group_member(self,group_name,member_name):
+        driver=self.driver
+        driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        table_list=driver.find_elements_by_xpath("//table[@id='group_members_grid']/tbody/tr/td[1]")
+        for i in range(len(table_list)) :
+            if member_name in table_list[i].text :
+                break
+        j=str(i+1)
+        print j
+        element=driver.find_element_by_xpath("//table[@id='group_members_grid']/tbody/tr["+j+"]/td[2]/a")
+        element.click()
+    
+    def revoke_group_name(self,group_name,member_name):
+        driver=self.driver
+        driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        table_list=driver.find_elements_by_xpath("//table[@id='group_members_grid']/tbody/tr/td[1]")
+        for i in range(len(table_list)) :
+            if member_name in table_list[i].text :
+                break
+        j=str(i+1)
+        print j
+        element=driver.find_element_by_xpath("//table[@id='group_members_grid']/tbody/tr["+j+"]/td[2]/a")
+        element.click()
+    
     def change_group_password(self,group_name,password):
         driver=self.driver
         driver.get(self.hub_url+"groups/edit?group_name="+group_name)
@@ -141,6 +184,8 @@ class BeakerCommonLib(object):
         time.sleep(10)
         self.driver.find_element_by_xpath("//div[@class='ui-dialog-buttonset']/button[1]").click()
         time.sleep(10)
+        element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='ui-dialog-buttonset']/button[1]")))
+        element.click()
         self.driver.refresh()
     def prepare_environment(self):
         #check the test system is available, if not,make it available.
@@ -167,10 +212,8 @@ class BeakerCommonLib(object):
             self.create_group(self.group_name, self.group_password)
         #make sure user is in that specific group
         driver.get(self.hub_url+"groups/edit?group_name="+self.group_name)
-        if self.username_1_noadmin in driver.page_source == False :
-            #add this user in
-            driver.find_element_by_id("GroupUser_user_text").send_keys(self.username_1_noadmin)
-            driver.find_element_by_id("GroupUser_user_text").send_keys(Keys.RETURN)
+        driver.find_element_by_id("GroupUser_user_text").send_keys(self.username_1_noadmin)
+        driver.find_element_by_id("GroupUser_user_text").send_keys(Keys.RETURN)
         #Add admin in
         driver.find_element_by_id("GroupUser_user_text").send_keys(self.username_admin)
         driver.find_element_by_id("GroupUser_user_text").send_keys(Keys.RETURN)

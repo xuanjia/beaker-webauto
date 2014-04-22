@@ -46,7 +46,11 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         #check job list by user1
         self.open_firefox_with_user()
         self.assertTrue(self.find_job_in_mine_job_list(job_id))
-    
+        self.driver.get(self.hub_url+"prefs/")
+        self.driver.find_element_by_xpath("//form[@action='remove_submission_delegate']/a[1]").click()
+        element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='ui-dialog-buttonset']/button[1]")))
+        element.click()
+        
     def test_delegate_submit_job_invalid_user(self):
         driver=self.driver
         driver.get(self.hub_url+"prefs/")
@@ -65,6 +69,10 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         #recover env
         self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"prefs/")
+        self.driver.find_element_by_xpath("//form[@action='remove_submission_delegate']/a[1]").click()
+        element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='ui-dialog-buttonset']/button[1]")))
+        element.click()
     
     def test_delegate_submit_group_job(self):
         driver=self.driver
@@ -83,6 +91,10 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         #check job list by user1
         self.open_firefox_with_user()
         self.assertTrue(self.find_job_in_mine_group_job_list(job_id))
+        self.driver.get(self.hub_url+"prefs/")
+        self.driver.find_element_by_xpath("//form[@action='remove_submission_delegate']/a[1]").click()
+        element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='ui-dialog-buttonset']/button[1]")))
+        element.click()
 
     def test_delegate_submit_invalid_group_job(self):
         driver=self.driver
@@ -102,6 +114,10 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         self.driver.close()
         #recover env
         self.open_firefox_with_user()
+        self.driver.get(self.hub_url+"prefs/")
+        self.driver.find_element_by_xpath("//form[@action='remove_submission_delegate']/a[1]").click()
+        element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='ui-dialog-buttonset']/button[1]")))
+        element.click()
     
     def test_create_and_delete_and_update_group_by_admin(self):
         self.driver.close()
@@ -600,7 +616,32 @@ class BeakerGroupPolicyTest(unittest.TestCase, common.BeakerCommonLib):
         #check 
         time.sleep(10)
         self.assertTrue("You do not have permission to control this system." in self.driver.page_source)
-     
+    
+    def test_group_grant_and_revoke(self):
+        name="grantrevoke"
+        password="RedHat@2093"
+        self.create_group(name,password)
+        self.add_group_member(name,self.username_2_noadmin)
+        time.sleep(10)
+        self.grant_group_member(name,self.username_2_noadmin)
+        time.sleep(10)
+        self.driver.close()
+        
+        self.open_firefox_with_user_2()
+        self.add_group_member(name,self.username_3_noadmin)
+        time.sleep(10)
+        self.grant_group_member(name,self.username_3_noadmin)
+        self.revoke_group_name(name,self.username_3_noadmin)
+        time.sleep(10)
+        self.remove_group_member(name,self.username_3_noadmin)
+        self.driver.close()
+
+        self.open_firefox_with_user()
+        self.revoke_group_name(name,self.username_2_noadmin) 
+        time.sleep(10)
+        self.remove_group_member(name,self.username_2_noadmin)
+        time.sleep(10)
+        self.delete_group(name)
     def tearDown(self):
         self.driver.close()
 
