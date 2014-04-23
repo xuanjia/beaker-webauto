@@ -30,8 +30,10 @@ This project is only for testing beaker's web console. The default browser is Fi
 >  group_password="RedHat@beaker2013"#group password for group_name
 
 * Create firefox profile under "firefox/autouser1" with username_admin account. And install AutoAuth plugin.
+
 >  *Tip:* 
        [root@localhost ~]# firefox -P
+
 * Open firefox with username_admin profile, and login beaker with admin account.Please save the password, then automation can work
 * Same step for username_1_noadmin and username_2_noadmin
 
