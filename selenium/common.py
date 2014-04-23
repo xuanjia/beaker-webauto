@@ -123,6 +123,7 @@ class BeakerCommonLib(object):
     def add_group_member(self,group_name,member_name):
         driver=self.driver
         driver.get(self.hub_url+"groups/edit?group_name="+group_name)
+        time.sleep(10)
         driver.find_element_by_id("GroupUser_user_text").send_keys(member_name)
         driver.find_element_by_id("GroupUser_user_text").send_keys(Keys.RETURN)
 
@@ -145,7 +146,6 @@ class BeakerCommonLib(object):
             if member_name in table_list[i].text :
                 break
         j=str(i+1)
-        print j
         element=driver.find_element_by_xpath("//table[@id='group_members_grid']/tbody/tr["+j+"]/td[2]/a")
         element.click()
     
@@ -157,7 +157,6 @@ class BeakerCommonLib(object):
             if member_name in table_list[i].text :
                 break
         j=str(i+1)
-        print j
         element=driver.find_element_by_xpath("//table[@id='group_members_grid']/tbody/tr["+j+"]/td[2]/a")
         element.click()
     
@@ -182,10 +181,7 @@ class BeakerCommonLib(object):
         driver.find_element_by_id("Search_group_text").send_keys(Keys.RETURN)
         driver.find_element_by_xpath("//a[@class='btn']").click()
         time.sleep(10)
-        self.driver.find_element_by_xpath("//div[@class='ui-dialog-buttonset']/button[1]").click()
-        time.sleep(10)
-        element = WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.XPATH, "//div[@class='ui-dialog-buttonset']/button[1]")))
-        element.click()
+        self.driver.find_element_by_xpath("/html/body/div[2]/div[3]/div/button[1]").click()
         self.driver.refresh()
     def prepare_environment(self):
         #check the test system is available, if not,make it available.
